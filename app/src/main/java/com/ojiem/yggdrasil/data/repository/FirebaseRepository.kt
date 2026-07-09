@@ -304,7 +304,7 @@ class FirebaseRepository {
                 followersCount = 120,
                 followingCount = 45,
                 bio = "Pioneering sustainable agriculture in the digital age.",
-                profilePicUrl = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=200&h=200", // Farm image proxy
+                profilePicUrl = "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/yggdrasil3",
                 isPrivate = false
             ),
             User(
@@ -316,14 +316,14 @@ class FirebaseRepository {
                 followersCount = 340,
                 followingCount = 12,
                 bio = "Decoding the secrets of the soil.",
-                profilePicUrl = "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&h=200",
+                profilePicUrl = "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/yggdrasil4",
                 isPrivate = true
             )
         )
         
         val dummyReports = listOf(
-            PriceReport("r1", "Heirloom Tomatoes", "produce", 350.0, "kg", "Organic Market", null, null, "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600", "eco_pioneer", "EcoPioneer", 8, true),
-            PriceReport("r2", "Local Honey", "staples", 800.0, "jar", "Village Square", null, null, "https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=600", "agri_seer", "AgriSeer", 2, false)
+            PriceReport("r1", "Heirloom Tomatoes", "produce", 350.0, "kg", "Organic Market", null, null, "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/yggdrasil3", "eco_pioneer", "EcoPioneer", 8, true),
+            PriceReport("r2", "Local Honey", "staples", 800.0, "jar", "Village Square", null, null, "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/yggdrasil4", "agri_seer", "AgriSeer", 2, false)
         )
 
         val dummyLibraryItems = listOf(

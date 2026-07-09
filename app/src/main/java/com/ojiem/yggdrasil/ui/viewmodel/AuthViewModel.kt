@@ -59,11 +59,20 @@ class AuthViewModel : ViewModel() {
             try {
                 repository.signIn(email, password)
                 
-                // Sync profile picture from Google/Firebase Auth account
+                // Fetch dynamic profile data from Google/Firebase Auth
                 val fbUser = repository.getCurrentUser()
-                if (fbUser != null && fbUser.photoUrl != null) {
-                    val updates = mapOf("profilePicUrl" to fbUser.photoUrl.toString())
-                    repository.updateProfile(fbUser.uid, updates)
+                if (fbUser != null) {
+                    val updates = mutableMapOf<String, Any>()
+                    
+                    // Extract Profile Pic from the email account
+                    fbUser.photoUrl?.let { updates["profilePicUrl"] = it.toString() }
+                    
+                    // Extract Display Name if available
+                    fbUser.displayName?.let { updates["fullName"] = it }
+                    
+                    if (updates.isNotEmpty()) {
+                        repository.updateProfile(fbUser.uid, updates)
+                    }
                 }
 
                 emitSuccess()
