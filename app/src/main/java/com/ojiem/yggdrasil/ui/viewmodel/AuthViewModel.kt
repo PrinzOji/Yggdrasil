@@ -58,6 +58,14 @@ class AuthViewModel : ViewModel() {
             isLoading = true
             try {
                 repository.signIn(email, password)
+                
+                // Sync profile picture from Google/Firebase Auth account
+                val fbUser = repository.getCurrentUser()
+                if (fbUser != null && fbUser.photoUrl != null) {
+                    val updates = mapOf("profilePicUrl" to fbUser.photoUrl.toString())
+                    repository.updateProfile(fbUser.uid, updates)
+                }
+
                 emitSuccess()
             } catch (e: Exception) {
                 emitError(e.localizedMessage ?: "Authentication Failed")

@@ -12,21 +12,21 @@ import kotlinx.coroutines.launch
 class LeaderboardViewModel : ViewModel() {
     private val repository = FirebaseRepository()
 
-    private val _topUsers = MutableStateFlow<List<User>>(emptyList())
-    val topUsers: StateFlow<List<User>> = _topUsers
+    private val _users = MutableStateFlow<List<User>>(emptyList())
+    val users: StateFlow<List<User>> = _users
 
     init {
-        fetchTopUsers()
+        fetchUsers()
     }
 
-    private fun fetchTopUsers() {
+    private fun fetchUsers() {
         viewModelScope.launch {
-            repository.getTopUsers()
+            repository.getAllUsers()
                 .catch { e ->
                     // Handle error
                 }
                 .collect { users ->
-                    _topUsers.value = users
+                    _users.value = users
                 }
         }
     }

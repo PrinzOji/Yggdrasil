@@ -34,13 +34,15 @@ class FirebaseRepository {
 
     suspend fun signUp(email: String, password: String, username: String, fullName: String) {
         val authResult = auth.createUserWithEmailAndPassword(email, password).await()
-        val userId = authResult.user?.uid ?: throw Exception("User ID is null")
+        val firebaseUser = authResult.user ?: throw Exception("User ID is null")
+        val userId = firebaseUser.uid
         
         val user = User(
             uid = userId,
             username = username,
             fullName = fullName,
             email = email,
+            profilePicUrl = firebaseUser.photoUrl?.toString(),
             rootsBalance = 100
         )
         
@@ -131,12 +133,12 @@ class FirebaseRepository {
         }
     }
 
-    fun getTopUsers(): Flow<List<User>> = callbackFlow {
-        val ref = db.getReference("Users").orderByChild("rootsBalance").limitToLast(10)
+    fun getAllUsers(): Flow<List<User>> = callbackFlow {
+        val ref = db.getReference("Users").orderByChild("username")
         val listener = ref.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
                 val users = snapshot.children.mapNotNull { it.getValue(User::class.java) }
-                trySend(users.sortedByDescending { it.rootsBalance })
+                trySend(users)
             }
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
                 close(error.toException())
@@ -302,7 +304,7 @@ class FirebaseRepository {
                 followersCount = 120,
                 followingCount = 45,
                 bio = "Pioneering sustainable agriculture in the digital age.",
-                profilePicUrl = "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&h=200",
+                profilePicUrl = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=200&h=200", // Farm image proxy
                 isPrivate = false
             ),
             User(

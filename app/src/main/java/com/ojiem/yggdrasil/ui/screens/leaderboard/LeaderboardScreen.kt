@@ -4,7 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -33,7 +33,7 @@ import com.ojiem.yggdrasil.ui.theme.*
 fun LeaderboardScreen() {
     val viewModel: LeaderboardViewModel = viewModel()
     val profileViewModel: ProfileViewModel = viewModel()
-    val topUsers by viewModel.topUsers.collectAsState()
+    val users by viewModel.users.collectAsState()
     val statuses by profileViewModel.statuses.collectAsState()
 
     NatureBackground {
@@ -47,7 +47,7 @@ fun LeaderboardScreen() {
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
-                "High-integrity network nodes", 
+                "Directory of all network nodes", 
                 color = NatureMint.copy(alpha = 0.7f), 
                 fontSize = 14.sp,
                 letterSpacing = 1.sp
@@ -59,9 +59,9 @@ fun LeaderboardScreen() {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(bottom = 100.dp)
             ) {
-                itemsIndexed(topUsers) { index, user ->
+                items(users) { user ->
                     val hasStatus = statuses.any { it.userId == user.uid }
-                    SeerCard(index + 1, user, hasStatus)
+                    SeerCard(user, hasStatus)
                 }
             }
         }
@@ -69,7 +69,7 @@ fun LeaderboardScreen() {
 }
 
 @Composable
-fun SeerCard(rank: Int, user: User, hasStatus: Boolean) {
+fun SeerCard(user: User, hasStatus: Boolean) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -83,36 +83,6 @@ fun SeerCard(rank: Int, user: User, hasStatus: Boolean) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Rank Circle
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .background(
-                            when(rank) {
-                                1 -> Color(0xFFFFD700)
-                                2 -> Color(0xFFC0C0C0)
-                                3 -> Color(0xFFCD7F32)
-                                else -> NatureMint.copy(alpha = 0.1f)
-                            }.copy(alpha = 0.2f),
-                            CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        "#$rank", 
-                        color = when(rank) {
-                            1 -> Color(0xFFFFD700)
-                            2 -> Color(0xFFC0C0C0)
-                            3 -> Color(0xFFCD7F32)
-                            else -> Color.White
-                        }, 
-                        fontSize = 12.sp, 
-                        fontWeight = FontWeight.Black
-                    )
-                }
-                
-                Spacer(Modifier.width(12.dp))
-
                 // Profile Image with Status Ring
                 Box(
                     modifier = Modifier
