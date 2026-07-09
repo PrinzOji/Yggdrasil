@@ -1,0 +1,20 @@
+package com.ojiem.yggdrasil.ui.navigation
+
+const val ROUTE_SPLASH = "splash"
+const val ROUTE_AUTH = "auth"
+const val ROUTE_HOME = "home"
+const val ROUTE_REPORT = "report"
+const val ROUTE_LEADERBOARD = "leaderboard"
+const val ROUTE_PROFILE = "profile"
+const val ROUTE_DASH = "dash"
+const val ROUTE_ADD_PRODUCT = "add_product"
+const val ROUTE_VIEW_PRODUCT = "view_product"
+const val ROUTE_SETTINGS = "settings"
+const val ROUTE_DETAIL = "detail/{reportId}"
+const val ROUTE_ANALYTICS = "analytics"
+const val ROUTE_FINANCE = "finance"
+const val ROUTE_INVENTORY = "inventory"
+const val ROUTE_LIBRARY = "library"
+const val ROUTE_REALMS = "realms"
+
+fun createDetailRoute(reportId: String) = "detail/$reportId"

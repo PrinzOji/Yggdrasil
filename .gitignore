@@ -1,0 +1,20 @@
+*.iml
+.gradle
+/local.properties
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Custom exclusions
+escholar_base.apk
+escholar_base.zip
+escholar_extracted/
+escholar/
+*.mp3
+*.jpg
+*.png
+google-services.json
