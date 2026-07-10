@@ -3,7 +3,10 @@ package com.ojiem.yggdrasil.ui.screens.profile
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -18,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import androidx.annotation.OptIn
+import kotlinx.coroutines.delay
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -109,43 +114,78 @@ fun ProfileScreen(navController: NavController) {
             val otherStatuses = statuses.filter { it.userId != user.uid }.groupBy { it.userId }
             
             Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // My Status entry
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    val hasStatus = myStatus.isNotEmpty()
                     Box(
                         modifier = Modifier
-                            .size(60.dp)
-                            .background(Color.White.copy(alpha = 0.1f), CircleShape)
-                            .clickable { if (myStatus.isNotEmpty()) { activeStatusList = myStatus } else { showStatusDialog = true } },
+                            .size(64.dp)
+                            .then(
+                                if (hasStatus) Modifier
+                                    .background(NatureMint, CircleShape)
+                                    .padding(2.dp)
+                                else Modifier
+                            )
+                            .background(Color.Black, CircleShape)
+                            .clip(CircleShape)
+                            .clickable {
+                                if (hasStatus) {
+                                    activeStatusList = myStatus
+                                } else {
+                                    showStatusDialog = true
+                                }
+                            },
                         contentAlignment = Alignment.Center
                     ) {
-                        if (user.profilePicUrl != null) {
+                        val displayImage = if (hasStatus) {
+                            myStatus.first().imageUrl ?: myStatus.first().userProfilePic ?: user.profilePicUrl
+                        } else {
+                            user.profilePicUrl
+                        }
+
+                        if (displayImage != null) {
                             AsyncImage(
-                                model = user.profilePicUrl,
+                                model = displayImage,
                                 contentDescription = null,
-                                modifier = Modifier.fillMaxSize().clip(CircleShape).padding(2.dp),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(CircleShape),
                                 contentScale = ContentScale.Crop
                             )
                         } else {
-                            Icon(Icons.Default.Person, contentDescription = null, tint = Color.White.copy(alpha = 0.5f))
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = null,
+                                tint = Color.White.copy(alpha = 0.5f)
+                            )
                         }
-                        
+
                         // Small plus icon if no status
-                        if (myStatus.isEmpty()) {
+                        if (!hasStatus) {
                             Box(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
                                     .size(20.dp)
-                                    .background(NatureMint, CircleShape),
+                                    .background(NatureMint, CircleShape)
+                                    .border(2.dp, Color.Black, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(12.dp))
+                                Icon(
+                                    Icons.Default.Add,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(12.dp)
+                                )
                             }
                         }
                     }
-                    Text("My Status", color = Color.White, fontSize = 10.sp)
+                    Text("My Status", color = Color.White, fontSize = 10.sp, modifier = Modifier.padding(top = 4.dp))
                 }
 
                 // Other Statuses
@@ -154,25 +194,29 @@ fun ProfileScreen(navController: NavController) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(
                             modifier = Modifier
-                                .size(60.dp)
+                                .size(64.dp)
                                 .background(NatureMint, CircleShape)
                                 .padding(2.dp)
                                 .background(Color.Black, CircleShape)
+                                .clip(CircleShape)
                                 .clickable { activeStatusList = userStatusList },
                             contentAlignment = Alignment.Center
                         ) {
-                            if (statusUser.userProfilePic != null) {
-                                AsyncImage(
-                                    model = statusUser.userProfilePic,
-                                    contentDescription = null,
-                                    modifier = Modifier.fillMaxSize().clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-                            } else {
-                                Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
-                            }
+                            AsyncImage(
+                                model = statusUser.userProfilePic ?: statusUser.imageUrl,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
                         }
-                        Text(statusUser.username, color = Color.White, fontSize = 10.sp)
+                        Text(
+                            statusUser.username,
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
                     }
                 }
             }
@@ -339,30 +383,49 @@ fun ProfileScreen(navController: NavController) {
 
             // Grid of posts
             Column {
-                userPosts.chunked(3).forEach { rowPosts ->
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        rowPosts.forEach { post ->
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f)
-                                    .background(Color.White.copy(alpha = 0.05f))
-                            ) {
-                                if (post.photoUrl != null) {
-                                    AsyncImage(
-                                        model = post.photoUrl,
-                                        contentDescription = null,
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
-                            }
-                        }
-                        repeat(3 - rowPosts.size) {
-                            Spacer(modifier = Modifier.weight(1f))
+                if (userPosts.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .glassmorphism(RoundedCornerShape(16.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.PhotoLibrary, contentDescription = null, tint = Color.White.copy(alpha = 0.3f), modifier = Modifier.size(48.dp))
+                            Spacer(Modifier.height(8.dp))
+                            Text("No posts yet", color = Color.White.copy(alpha = 0.5f))
                         }
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
+                } else {
+                    userPosts.chunked(3).forEach { rowPosts ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            rowPosts.forEach { post ->
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .aspectRatio(1f)
+                                        .background(Color.White.copy(alpha = 0.05f))
+                                ) {
+                                    if (post.photoUrl != null) {
+                                        AsyncImage(
+                                            model = post.photoUrl,
+                                            contentDescription = null,
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    }
+                                }
+                            }
+                            repeat(3 - rowPosts.size) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
+                    }
                 }
             }
             
@@ -448,13 +511,18 @@ fun StatusViewer(
     val currentStatus = statuses[currentIndex]
     val context = LocalContext.current
 
+    // Auto-advance logic
+    var isPaused by remember { mutableStateOf(false) }
+    var progress by remember { mutableFloatStateOf(0f) }
+
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
             repeatMode = Player.REPEAT_MODE_OFF
         }
     }
 
-    DisposableEffect(currentStatus) {
+    LaunchedEffect(currentStatus) {
+        progress = 0f
         if (currentStatus.videoUrl != null) {
             val mediaItem = MediaItem.fromUri(currentStatus.videoUrl)
             exoPlayer.setMediaItem(mediaItem)
@@ -463,8 +531,27 @@ fun StatusViewer(
         } else {
             exoPlayer.stop()
         }
-        onDispose {
-            exoPlayer.stop()
+    }
+
+    LaunchedEffect(currentIndex, isPaused) {
+        if (!isPaused) {
+            val duration = if (currentStatus.videoUrl != null) 15000L else 5000L
+            val startTime = System.currentTimeMillis()
+            val startProgress = progress
+            
+            while (progress < 1f && !isPaused) {
+                val elapsed = System.currentTimeMillis() - startTime
+                progress = (startProgress + (elapsed.toFloat() / duration)).coerceIn(0f, 1f)
+                delay(50)
+            }
+            
+            if (progress >= 1f && !isPaused) {
+                if (currentIndex < statuses.size - 1) {
+                    currentIndex++
+                } else {
+                    onDismiss()
+                }
+            }
         }
     }
 
@@ -478,10 +565,24 @@ fun StatusViewer(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .clickable { 
-                if (currentIndex < statuses.size - 1) currentIndex++ else onDismiss()
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        isPaused = true
+                        tryAwaitRelease()
+                        isPaused = false
+                    },
+                    onTap = { offset ->
+                        if (offset.x < size.width / 3) {
+                            if (currentIndex > 0) currentIndex-- else onDismiss()
+                        } else {
+                            if (currentIndex < statuses.size - 1) currentIndex++ else onDismiss()
+                        }
+                    }
+                )
             }
     ) {
+        // Content
         if (currentStatus.videoUrl != null) {
             AndroidView(
                 factory = {
@@ -520,7 +621,7 @@ fun StatusViewer(
             Row(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 80.dp)
+                    .padding(bottom = 100.dp)
                     .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(20.dp))
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -535,13 +636,9 @@ fun StatusViewer(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 40.dp, start = 16.dp, end = 16.dp),
+                .padding(top = 60.dp, start = 16.dp, end = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onDismiss) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
-            }
-            Spacer(Modifier.width(8.dp))
             if (currentStatus.userProfilePic != null) {
                 AsyncImage(
                     model = currentStatus.userProfilePic,
@@ -552,9 +649,12 @@ fun StatusViewer(
                 Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(40.dp))
             }
             Spacer(Modifier.width(12.dp))
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(currentStatus.username, color = Color.White, fontWeight = FontWeight.Bold)
                 Text("Just now", color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
+            }
+            IconButton(onClick = onDismiss) {
+                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
             }
         }
 
@@ -562,16 +662,29 @@ fun StatusViewer(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 32.dp, start = 8.dp, end = 8.dp),
+                .padding(top = 44.dp, start = 8.dp, end = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             statuses.forEachIndexed { index, _ ->
+                val stepProgress = when {
+                    index < currentIndex -> 1f
+                    index == currentIndex -> progress
+                    else -> 0f
+                }
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .height(2.dp)
-                        .background(if (index <= currentIndex) Color.White else Color.White.copy(alpha = 0.3f))
-                )
+                        .height(3.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(Color.White.copy(alpha = 0.3f))
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(stepProgress)
+                            .fillMaxHeight()
+                            .background(Color.White)
+                    )
+                }
             }
         }
     }

@@ -32,6 +32,10 @@ class FirebaseRepository {
         auth.signInWithEmailAndPassword(email, password).await()
     }
 
+    suspend fun sendPasswordResetEmail(email: String) {
+        auth.sendPasswordResetEmail(email).await()
+    }
+
     suspend fun signUp(email: String, password: String, username: String, fullName: String) {
         val authResult = auth.createUserWithEmailAndPassword(email, password).await()
         val firebaseUser = authResult.user ?: throw Exception("User ID is null")

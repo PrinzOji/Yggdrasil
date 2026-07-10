@@ -38,8 +38,8 @@ fun HomeFeedScreen(
 ) {
     val productViewModel: ProductViewModel = viewModel()
     val reports by productViewModel.reports.collectAsState()
+    val isRefreshing by productViewModel.isRefreshing.collectAsState()
     var selectedCategory by remember { mutableStateOf<String?>(null) }
-    var isRefreshing by remember { mutableStateOf(false) }
 
     val filteredReports = remember(reports, selectedCategory) {
         if (selectedCategory == null) reports else reports.filter { it.category == selectedCategory }
@@ -59,10 +59,18 @@ fun HomeFeedScreen(
                     Text("Synchronizing Eco Nodes", color = NatureMint.copy(alpha = 0.7f), fontSize = 14.sp)
                 }
                 IconButton(
-                    onClick = { /* Refresh logic */ },
+                    onClick = { productViewModel.refreshReports() },
                     modifier = Modifier.glassmorphism(RoundedCornerShape(12.dp))
                 ) {
-                    Icon(Icons.Filled.Refresh, contentDescription = "Refresh", tint = Color.White)
+                    if (isRefreshing) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(Icons.Filled.Refresh, contentDescription = "Refresh", tint = Color.White)
+                    }
                 }
             }
 

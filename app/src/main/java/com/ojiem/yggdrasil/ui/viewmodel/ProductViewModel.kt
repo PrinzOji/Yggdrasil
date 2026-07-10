@@ -26,6 +26,9 @@ class ProductViewModel : ViewModel() {
     var isSubmitting by mutableStateOf(false)
     var uploadStatus by mutableStateOf("")
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
+
     private val _reports = MutableStateFlow<List<PriceReport>>(emptyList())
     val reports: StateFlow<List<PriceReport>> = _reports
 
@@ -49,6 +52,15 @@ class ProductViewModel : ViewModel() {
                 .collect { fetchedReports ->
                     _reports.value = fetchedReports
                 }
+        }
+    }
+
+    fun refreshReports() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            fetchReports()
+            kotlinx.coroutines.delay(1000)
+            _isRefreshing.value = false
         }
     }
 

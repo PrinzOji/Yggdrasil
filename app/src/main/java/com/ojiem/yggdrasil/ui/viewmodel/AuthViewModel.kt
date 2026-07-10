@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 
 sealed class AuthEvent {
     object Success : AuthEvent()
+    data class Info(val message: String) : AuthEvent()
     data class Error(val message: String) : AuthEvent()
 }
 
@@ -86,6 +87,25 @@ class AuthViewModel : ViewModel() {
 
     fun logout() {
         repository.signOut()
+    }
+
+    fun resetPassword(email: String) {
+        if (email.isBlank()) {
+            emitError("Please enter your email address")
+            return
+        }
+
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                repository.sendPasswordResetEmail(email)
+                _authEvent.emit(AuthEvent.Info("Password reset email sent! Check your inbox."))
+            } catch (e: Exception) {
+                emitError(e.localizedMessage ?: "Failed to send reset email")
+            } finally {
+                isLoading = false
+            }
+        }
     }
 
     private fun emitSuccess() {

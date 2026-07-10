@@ -43,6 +43,8 @@ fun AuthScreen(navController: NavHostController) {
     var password by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var fullName by remember { mutableStateOf("") }
+    var showResetDialog by remember { mutableStateOf(false) }
+    var resetEmail by remember { mutableStateOf("") }
     
     val context = LocalContext.current
     val authViewModel: AuthViewModel = viewModel()
@@ -55,6 +57,9 @@ fun AuthScreen(navController: NavHostController) {
                     navController.navigate(ROUTE_HOME) {
                         popUpTo(0) { inclusive = true }
                     }
+                }
+                is AuthEvent.Info -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
                 }
                 is AuthEvent.Error -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
@@ -126,15 +131,28 @@ fun AuthScreen(navController: NavHostController) {
                         icon = Icons.Default.Email
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    HubTextField(
-                        value = password, 
-                        onValueChange = { password = it }, 
-                        label = "Password", 
-                        icon = Icons.Default.Lock, 
-                        isPassword = true
-                    )
+                        HubTextField(
+                            value = password, 
+                            onValueChange = { password = it }, 
+                            label = "Password", 
+                            icon = Icons.Default.Lock, 
+                            isPassword = true
+                        )
+                        
+                        if (!isSignUpMode) {
+                            TextButton(
+                                onClick = { 
+                                    resetEmail = email
+                                    showResetDialog = true 
+                                },
+                                modifier = Modifier.align(Alignment.End),
+                                contentPadding = PaddingValues(0.dp)
+                            ) {
+                                Text("Forgot Password?", color = NatureMint, fontSize = 12.sp)
+                            }
+                        }
+                    }
                 }
-            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -177,5 +195,40 @@ fun AuthScreen(navController: NavHostController) {
                 )
             }
         }
+    }
+
+    if (showResetDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetDialog = false },
+            title = { Text("Reset Password") },
+            text = {
+                Column {
+                    Text("Enter your email to receive a password reset link.", fontSize = 14.sp)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HubTextField(
+                        value = resetEmail,
+                        onValueChange = { resetEmail = it },
+                        label = "Email Address",
+                        icon = Icons.Default.Email
+                    )
+                }
+            },
+            confirmButton = {
+                HubButton(
+                    onClick = {
+                        authViewModel.resetPassword(resetEmail.trim())
+                        showResetDialog = false
+                    },
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Text("SEND RESET LINK", color = Color.White, fontSize = 12.sp)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetDialog = false }) {
+                    Text("CANCEL")
+                }
+            }
+        )
     }
 }
