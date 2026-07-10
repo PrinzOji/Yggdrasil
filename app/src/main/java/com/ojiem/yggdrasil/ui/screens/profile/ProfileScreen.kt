@@ -63,6 +63,7 @@ fun ProfileScreen(navController: NavController) {
     var showChannelDialog by remember { mutableStateOf(false) }
     var showPostUpdateDialog by remember { mutableStateOf(false) }
     var showStatusDialog by remember { mutableStateOf(false) }
+    var showPicOptions by remember { mutableStateOf(false) }
     var activeStatusList by remember { mutableStateOf<List<Status>?>(null) }
 
     val imageLauncher = rememberLauncherForActivityResult(
@@ -263,7 +264,7 @@ fun ProfileScreen(navController: NavController) {
                                 .size(84.dp)
                                 .glassmorphism(CircleShape)
                                 .padding(4.dp)
-                                .clickable { imageLauncher.launch("image/*") },
+                                .clickable { showPicOptions = true },
                             contentAlignment = Alignment.Center
                         ) {
                             if (isUpdating) {
@@ -451,6 +452,53 @@ fun ProfileScreen(navController: NavController) {
             onSave = { note ->
                 viewModel.updateNote(note)
                 showNoteDialog = false
+            }
+        )
+    }
+
+    if (showPicOptions) {
+        AlertDialog(
+            onDismissRequest = { showPicOptions = false },
+            title = { Text("Profile Picture") },
+            text = {
+                Column {
+                    TextButton(
+                        onClick = {
+                            imageLauncher.launch("image/*")
+                            showPicOptions = false
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(12.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Icon(Icons.Default.PhotoCamera, contentDescription = null, tint = NatureMint)
+                            Spacer(Modifier.width(12.dp))
+                            Text("Change Photo", color = Color.White)
+                        }
+                    }
+                    if (user.profilePicUrl != null) {
+                        TextButton(
+                            onClick = {
+                                viewModel.deleteProfilePicture()
+                                showPicOptions = false
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            contentPadding = PaddingValues(12.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                                Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red)
+                                Spacer(Modifier.width(12.dp))
+                                Text("Delete Photo", color = Color.Red)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showPicOptions = false }) {
+                    Text("Cancel")
+                }
             }
         )
     }

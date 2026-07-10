@@ -308,7 +308,7 @@ class FirebaseRepository {
                 followersCount = 120,
                 followingCount = 45,
                 bio = "Pioneering sustainable agriculture in the digital age.",
-                profilePicUrl = "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/yggdrasil3",
+                profilePicUrl = "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/farm_1",
                 isPrivate = false
             ),
             User(
@@ -320,14 +320,14 @@ class FirebaseRepository {
                 followersCount = 340,
                 followingCount = 12,
                 bio = "Decoding the secrets of the soil.",
-                profilePicUrl = "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/yggdrasil4",
+                profilePicUrl = "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/farm_2",
                 isPrivate = true
             )
         )
         
         val dummyReports = listOf(
-            PriceReport("r1", "Heirloom Tomatoes", "produce", 350.0, "kg", "Organic Market", null, null, "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/yggdrasil3", "eco_pioneer", "EcoPioneer", 8, true),
-            PriceReport("r2", "Local Honey", "staples", 800.0, "jar", "Village Square", null, null, "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/yggdrasil4", "agri_seer", "AgriSeer", 2, false)
+            PriceReport("r1", "Heirloom Tomatoes", "produce", 350.0, "kg", "Organic Market", null, null, "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/farm_3", "eco_pioneer", "EcoPioneer", 8, true),
+            PriceReport("r2", "Local Honey", "staples", 800.0, "jar", "Village Square", null, null, "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/farm_4", "agri_seer", "AgriSeer", 2, false)
         )
 
         val dummyLibraryItems = listOf(
@@ -358,8 +358,8 @@ class FirebaseRepository {
                 id = "s1",
                 userId = "eco_pioneer",
                 username = "EcoPioneer",
-                userProfilePic = "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&h=200",
-                imageUrl = "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=1080",
+                userProfilePic = "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/farm_1",
+                imageUrl = "https://res.cloudinary.com/dxk6p6k6x/image/upload/v1/yggdrasil/farm_5",
                 musicTitle = "Forest Sounds - Nature",
                 audience = "EVERYONE"
             ),

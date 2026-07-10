@@ -4,6 +4,7 @@ import android.view.animation.OvershootInterpolator
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,7 +58,21 @@ fun SplashScreen(navController: NavHostController) {
         }
     }
 
-    NatureBackground {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.splash_bg),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+        
+        // Semi-transparent overlay to make text/logo pop
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.4f))
+        )
+
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -66,7 +82,7 @@ fun SplashScreen(navController: NavHostController) {
                     painter = painterResource(id = R.drawable.yggdrasil_logo),
                     contentDescription = "Logo",
                     modifier = Modifier
-                        .size(220.dp)
+                        .size(240.dp)
                         .scale(scale.value)
                 )
                 
@@ -83,7 +99,7 @@ fun SplashScreen(navController: NavHostController) {
                 
                 Text(
                     text = "THE WORLD TREE",
-                    color = NatureMint.copy(alpha = 0.8f),
+                    color = NatureMint,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 4.sp,

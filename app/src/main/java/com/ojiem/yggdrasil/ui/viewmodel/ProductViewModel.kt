@@ -36,8 +36,9 @@ class ProductViewModel : ViewModel() {
     val selectedReport: StateFlow<PriceReport?> = _selectedReport
 
     // Cloudinary config
-    private val cloudinaryUrl = "https://api.cloudinary.com/v1_1/dxk6p6k6x/image/upload"
-    private val uploadPreset = "yggdrasil_preset"
+    private val cloudName = "dovimhvmv"
+    private val uploadPreset = "yggdrasil_upload"
+    private val cloudinaryUrl = "https://api.cloudinary.com/v1_1/$cloudName/image/upload"
 
     init {
         fetchReports()

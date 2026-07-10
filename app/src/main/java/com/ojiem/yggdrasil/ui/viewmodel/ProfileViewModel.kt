@@ -25,8 +25,9 @@ class ProfileViewModel : ViewModel() {
     private val repository = FirebaseRepository()
     
     // Cloudinary config
-    private val cloudinaryUrl = "https://api.cloudinary.com/v1_1/dxk6p6k6x/image/upload"
-    private val uploadPreset = "yggdrasil_preset"
+    private val cloudName = "dovimhvmv"
+    private val uploadPreset = "yggdrasil_upload"
+    private val cloudinaryUrl = "https://api.cloudinary.com/v1_1/$cloudName/image/upload"
 
     private val _userData = MutableStateFlow<User?>(null)
     val userData: StateFlow<User?> = _userData
@@ -95,6 +96,21 @@ class ProfileViewModel : ViewModel() {
             try {
                 val url = uploadToCloudinary(context, uri)
                 repository.updateProfile(userId, mapOf("profilePicUrl" to url))
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isUpdating.value = false
+            }
+        }
+    }
+
+    fun deleteProfilePicture() {
+        val userId = repository.getCurrentUser()?.uid ?: return
+        viewModelScope.launch {
+            _isUpdating.value = true
+            try {
+                // Remove the URL from Firebase
+                repository.updateProfile(userId, mapOf("profilePicUrl" to null))
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
