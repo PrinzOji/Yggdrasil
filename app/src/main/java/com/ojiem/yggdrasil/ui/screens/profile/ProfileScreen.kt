@@ -550,6 +550,7 @@ fun ProfileScreen(navController: NavController) {
     }
 }
 
+@OptIn(UnstableApi::class)
 @Composable
 fun StatusViewer(
     statuses: List<Status>,
